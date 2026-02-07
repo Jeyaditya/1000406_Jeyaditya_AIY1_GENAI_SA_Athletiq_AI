@@ -3,7 +3,7 @@ import google.generativeai as genai
 from PIL import Image
 
 # ================= PAGE CONFIG =================
-icon = Image.open("images/Fitness_logo.png")
+icon = Image.open("Athletiq_AI mascot/Fitness_logo.png")
 
 st.set_page_config(
     page_title="ATHLETIQ AI",
@@ -51,7 +51,7 @@ st.markdown("""
 header_col1, header_col2 = st.columns([1, 6])
 
 with header_col1:
-    st.image("images/Fitness_logo.png", width=180)
+    st.image("Athletiq_AI mascot/Fitness_logo.png", width=180)
 
 with header_col2:
     st.markdown("<div class='app-title'>ATHLETIQ AI</div>", unsafe_allow_html=True)
@@ -63,7 +63,7 @@ with header_col2:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ================= API CONFIG =================
-GEMINI_API_KEY = 'AIzaSyDBYODAdvFKQbQqVdEooiSk5ikEmGPv24k'#st.secrets["GEMINI_API_KEY"]
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
 
 @st.cache_resource
@@ -172,7 +172,7 @@ Provide:
 Keep advice safe, motivating, and youth-appropriate.
 """
 
-    if st.button("🚀 Generate Elite Training Plan"):
+    if st.button("Generate Elite Training Plan"):
         with st.spinner("ATHLETIQ AI is designing your plan..."):
             response = model.generate_content(build_prompt())
 
@@ -187,10 +187,11 @@ with right_col:
     st.markdown("### Your Fitness Coach")
 
     st.image(
-        "images/Kangaroo_mascot.png",
+        "Athletiq_AI mascot/Kangaroo_mascot.png",
         caption="ATHLETIQ AI Coach",
         use_container_width=True
     )
 
     st.markdown("💬 *Train smart. Recover strong.*")
     st.markdown("</div>", unsafe_allow_html=True)
+
