@@ -13,8 +13,7 @@ except:
 st.markdown("""
 <style>
     .stApp { background-color: #0e1117; }
-    
-    /* Remove top padding to fix ghost spacing */
+
     .block-container { padding-top: 2rem; }
 
     .app-title { 
@@ -91,11 +90,20 @@ with st.sidebar:
     
     
 
-# ================= MAIN HEADER =================
-header_col1, header_col2 = st.columns([1, 6])
+# ================= SINGLE HEADER SECTION =================
+header_col1, header_col2 = st.columns([1, 5])
+
+with header_col1:
+    try:
+        st.image("Athletiq_AI mascot/Fitness_logo.png", width=140)
+    except:
+        st.header("🏋️")
+
 with header_col2:
     st.markdown("<div class='app-title'>ATHLETIQ AI</div>", unsafe_allow_html=True)
     st.markdown("<div class='subtitle'>Smart Training • Safe Recovery • Peak Performance</div>", unsafe_allow_html=True)
+
+st.divider()
 
 # ================= INPUT SECTION =================
 st.markdown("<div class='card'>", unsafe_allow_html=True)
@@ -153,6 +161,7 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
 
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
+
 
 
 
