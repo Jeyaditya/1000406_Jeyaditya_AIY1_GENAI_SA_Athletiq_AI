@@ -9,30 +9,53 @@ try:
 except:
     st.set_page_config(page_title="ATHLETIQ AI", layout="wide")
 
-# ================= CUSTOM CSS =================
+# ================= CUSTOM CSS (UPDATED) =================
 st.markdown("""
 <style>
     .stApp { background-color: #0e1117; }
-    .app-title { font-size: 3rem; font-weight: 800; color: #4ade80; }
-    .subtitle { font-size: 1.3rem; color: #cbd5e1; }
-    .card {
-        background: rgba(255,255,255,0.05);
-        padding: 25px;
-        border-radius: 18px;
-        border: 1px solid rgba(74, 222, 128, 0.2);
-        margin-bottom: 20px;
+    
+    /* Container for the logo and title to keep them inline */
+    .header-container {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 10px;
     }
-    .coach-bubble {
-        background-color: #1e293b;
-        padding: 25px;
-        border-radius: 20px;
-        border-bottom-right-radius: 5px;
-        border: 2px solid #4ade80;
-        color: #f1f5f9;
-        margin-top: 20px;
+    
+    .app-title { 
+        font-size: 3.5rem; 
+        font-weight: 800; 
+        color: #4ade80; 
+        margin: 0;
+        line-height: 1;
     }
+    .subtitle { 
+        font-size: 1.2rem; 
+        color: #cbd5e1; 
+        margin-left: 5px;
+    }
+    /* Rest of your existing CSS... */
+    .card { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 18px; border: 1px solid rgba(74, 222, 128, 0.2); margin-bottom: 20px; }
+    .coach-bubble { background-color: #1e293b; padding: 25px; border-radius: 20px; border-bottom-right-radius: 5px; border: 2px solid #4ade80; color: #f1f5f9; margin-top: 20px; }
 </style>
 """, unsafe_allow_html=True)
+
+# ================= HEADER SECTION (FIXED) =================
+# We use columns to ensure the image and text are side-by-side without "ghost" gaps
+header_col1, header_col2 = st.columns([1, 5])
+
+with header_col1:
+    try:
+        # Check your path: Ensure 'Athletiq_AI mascot' is exactly correct (caps/spaces)
+        st.image("Athletiq_AI mascot/Fitness_logo.png", width=150)
+    except:
+        st.write("🏋️") # Fallback icon if path is broken
+
+with header_col2:
+    st.markdown("<div class='app-title'>ATHLETIQ AI</div>", unsafe_allow_html=True)
+    st.markdown("<div class='subtitle'>Smart Training • Safe Recovery • Peak Performance</div>", unsafe_allow_html=True)
+
+st.divider() # Clean line to separate header from inputs
 
 # ================= API CONFIG =================
 # Replace with your renewed key in st.secrets
@@ -140,3 +163,4 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
 
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
+
