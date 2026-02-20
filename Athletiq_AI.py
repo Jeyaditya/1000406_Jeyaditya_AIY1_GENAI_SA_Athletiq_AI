@@ -11,6 +11,10 @@ st.set_page_config(
     layout="wide"
 )
 
+# ================= SESSION STATE (ADDED) =================
+if "athletiq_chats" not in st.session_state:
+    st.session_state.athletiq_chats = []
+
 # ================= CUSTOM CSS =================
 st.markdown("""
 <style>
@@ -43,6 +47,33 @@ st.markdown("""
     padding: 20px;
     border-radius: 20px;
     text-align: center;
+
+.mascot-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.mascot-img {
+    width: 90px;
+}
+
+.mascot-bubble {
+    background: rgba(255,255,255,0.08);
+    padding: 18px;
+    border-radius: 18px;
+    position: relative;
+}
+
+.mascot-bubble::before {
+    content: "";
+    position: absolute;
+    left: -12px;
+    top: 24px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: transparent rgba(255,255,255,0.08) transparent transparent;
+}
 }
 </style>
 """, unsafe_allow_html=True)
@@ -62,29 +93,23 @@ with header_col2:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
+# ================= CHAT HISTORY TABS (ADDED) =================
+if st.session_state.athletiq_chats:
+    tabs = st.tabs([chat["title"] for chat in st.session_state.athletiq_chats])
+
+    for tab, chat in zip(tabs, st.session_state.athletiq_chats):
+        with tab:
+            st.markdown(chat["content"], unsafe_allow_html=True)
+
 # ================= API CONFIG =================
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
 
 @st.cache_resource
 def load_model():
-    return genai.GenerativeModel("gemini-2.0-flash") 
+    return genai.GenerativeModel("gemini-2.5-flash")
 
 model = load_model()
-
-# ================= RIGHT COLUMN =================
-with right_col:
-    st.markdown("<div class='mascot-box'>", unsafe_allow_html=True)
-    st.markdown("### Your Fitness Coach")
-
-    st.image(
-        "Athletiq_AI mascot/Kangaroo_mascot.png",
-        caption="ATHLETIQ AI Coach",
-        width="stretch"  # FIXED: use 'stretch' for full container width
-    )
-
-    st.markdown("💬 *Train smart. Recover strong.*")
-    st.markdown("</div>", unsafe_allow_html=True)
 
 # ================= MAIN LAYOUT =================
 left_col, right_col = st.columns([3, 1])
@@ -109,7 +134,6 @@ with left_col:
         height = st.number_input("Height (cm)", min_value=120, max_value=220, value=160)
         weight = st.number_input("Weight (kg)", min_value=25, max_value=150, value=50)
 
-        # -------- BMI CALCULATION --------
         height_m = height / 100
         bmi = round(weight / (height_m ** 2), 1)
 
@@ -187,13 +211,24 @@ Keep advice safe, motivating, and youth-appropriate.
 """
 
     if st.button("Generate Elite Training Plan"):
-        with st.spinner("ATHLETIQ AI is designing your plan..."):
+        with st.spinner("ATHLETIQ AI is designing your plan (Scroll up to see the recommendations!)... "):
             response = model.generate_content(build_prompt())
 
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("<div class='section-title'>📋 Personalized Coaching Blueprint</div><br>", unsafe_allow_html=True)
-        st.markdown(response.text)
-        st.markdown("</div>", unsafe_allow_html=True)
+        formatted_response = f"""
+        <div class='card'>
+        <div class='section-title'>📋 Personalized Coaching Blueprint</div><br>
+        {response.text}
+        </div>
+        """
+
+        # ================= SAVE TO CHAT HISTORY (ADDED) =================
+        st.session_state.athletiq_chats.insert(0, {
+            "title": f"{sport} • {goal}",
+            "content": formatted_response
+        })
+        st.session_state.athletiq_chats = st.session_state.athletiq_chats[:5]
+
+        st.rerun()
 
 # ================= RIGHT COLUMN =================
 with right_col:
@@ -208,5 +243,3 @@ with right_col:
 
     st.markdown("💬 *Train smart. Recover strong.*")
     st.markdown("</div>", unsafe_allow_html=True)
-
-
