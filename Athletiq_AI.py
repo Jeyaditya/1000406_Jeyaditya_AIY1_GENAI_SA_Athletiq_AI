@@ -47,22 +47,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ================= SINGLE HEADER SECTION =================
-# This replaces ALL previous header/title code
-header_col1, header_col2 = st.columns([1, 5])
-
-with header_col1:
-    try:
-        # Using 'width' instead of 'use_container_width' to avoid 2026 errors
-        st.image("Athletiq_AI mascot/Fitness_logo.png", width=140)
-    except:
-        st.header("🏋️") # Fallback icon if path is wrong
-
-with header_col2:
-    st.markdown("<div class='app-title'>ATHLETIQ AI</div>", unsafe_allow_html=True)
-    st.markdown("<div class='subtitle'>Smart Training • Safe Recovery • Peak Performance</div>", unsafe_allow_html=True)
-
-st.divider() # Creates a clean visual break
 # ================= API CONFIG =================
 # Replace with your renewed key in st.secrets
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
@@ -169,5 +153,6 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
 
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
+
 
 
