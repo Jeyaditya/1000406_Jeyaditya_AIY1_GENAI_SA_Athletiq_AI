@@ -3,245 +3,140 @@ import google.generativeai as genai
 from PIL import Image
 
 # ================= PAGE CONFIG =================
-icon = Image.open("Athletiq_AI mascot/Fitness_logo.png")
-
-st.set_page_config(
-    page_title="ATHLETIQ AI",
-    page_icon=icon,
-    layout="wide"
-)
-
-# ================= SESSION STATE (ADDED) =================
-if "athletiq_chats" not in st.session_state:
-    st.session_state.athletiq_chats = []
+try:
+    icon = Image.open("Athletiq_AI mascot/Fitness_logo.png")
+    st.set_page_config(page_title="ATHLETIQ AI", page_icon=icon, layout="wide")
+except:
+    st.set_page_config(page_title="ATHLETIQ AI", layout="wide")
 
 # ================= CUSTOM CSS =================
 st.markdown("""
 <style>
-.stApp {
-    background-color: #0e1117;
-}
-.app-title {
-    font-size: 3rem;
-    font-weight: 800;
-    color: #4ade80;
-}
-.subtitle {
-    font-size: 1.3rem;
-    color: #cbd5e1;
-}
-.card {
-    background: rgba(255,255,255,0.05);
-    padding: 25px;
-    border-radius: 18px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    margin-bottom: 20px;
-}
-.section-title {
-    font-size: 1.2rem;
-    color: #a7f3d0;
-    font-weight: 600;
-}
-.mascot-box {
-    background: rgba(255,255,255,0.04);
-    padding: 20px;
-    border-radius: 20px;
-    text-align: center;
-
-.mascot-row {
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-}
-
-.mascot-img {
-    width: 90px;
-}
-
-.mascot-bubble {
-    background: rgba(255,255,255,0.08);
-    padding: 18px;
-    border-radius: 18px;
-    position: relative;
-}
-
-.mascot-bubble::before {
-    content: "";
-    position: absolute;
-    left: -12px;
-    top: 24px;
-    border-width: 8px;
-    border-style: solid;
-    border-color: transparent rgba(255,255,255,0.08) transparent transparent;
-}
-}
+    .stApp { background-color: #0e1117; }
+    .app-title { font-size: 3rem; font-weight: 800; color: #4ade80; }
+    .subtitle { font-size: 1.3rem; color: #cbd5e1; }
+    .card {
+        background: rgba(255,255,255,0.05);
+        padding: 25px;
+        border-radius: 18px;
+        border: 1px solid rgba(74, 222, 128, 0.2);
+        margin-bottom: 20px;
+    }
+    .coach-bubble {
+        background-color: #1e293b;
+        padding: 25px;
+        border-radius: 20px;
+        border-bottom-right-radius: 5px;
+        border: 2px solid #4ade80;
+        color: #f1f5f9;
+        margin-top: 20px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# ================= HEADER =================
-header_col1, header_col2 = st.columns([1, 6])
-
-with header_col1:
-    st.image("Athletiq_AI mascot/Fitness_logo.png", width=180)
-
-with header_col2:
-    st.markdown("<div class='app-title'>ATHLETIQ AI</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='subtitle'>Smart Training • Safe Recovery • Peak Performance</div>",
-        unsafe_allow_html=True
-    )
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-# ================= CHAT HISTORY TABS (ADDED) =================
-if st.session_state.athletiq_chats:
-    tabs = st.tabs([chat["title"] for chat in st.session_state.athletiq_chats])
-
-    for tab, chat in zip(tabs, st.session_state.athletiq_chats):
-        with tab:
-            st.markdown(chat["content"], unsafe_allow_html=True)
-
 # ================= API CONFIG =================
+# Replace with your renewed key in st.secrets
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
 
 @st.cache_resource
 def load_model():
-    return genai.GenerativeModel("gemini-2.5-flash")
+    # max_output_tokens=800 prevents the "2000-word essay"
+    return genai.GenerativeModel(
+        model_name="gemini-2.0-flash",
+        generation_config={
+            "max_output_tokens": 800,
+            "temperature": 0.8,
+        }
+    )
 
 model = load_model()
 
-# ================= MAIN LAYOUT =================
-left_col, right_col = st.columns([3, 1])
+# ================= SIDEBAR (BMI & MASCOT) =================
+with st.sidebar:
+    try:
+        st.image("Athletiq_AI mascot/Kangaroo_mascot.png", width="stretch")
+    except:
+        st.write("🦘 [Mascot Image]")
+    
+    st.markdown("### 🦘 Coach's Corner")
+    st.info("“Let’s hop to it, Champ! Time to build that elite performance!”")
+    
+    st.divider()
+    st.markdown("#### 📊 Athlete Vitals")
+    sb_height = st.number_input("Height (cm)", 120, 220, 160)
+    sb_weight = st.number_input("Weight (kg)", 25, 150, 50)
+    
+    bmi = round(sb_weight / ((sb_height/100) ** 2), 1)
+    
+    if bmi < 18.5: status, col = "Underweight", "normal"
+    elif 18.5 <= bmi < 24.9: status, col = "Healthy Range", "normal"
+    else: status, col = "Review Build", "inverse"
+    
+    st.metric(label="Current BMI", value=bmi, delta=status, delta_color=col)
+    st.caption("Youth BMI is a guide—focus on growth and energy!")
+    
+    
 
-# ================= LEFT COLUMN =================
-with left_col:
+# ================= MAIN HEADER =================
+header_col1, header_col2 = st.columns([1, 6])
+with header_col2:
+    st.markdown("<div class='app-title'>ATHLETIQ AI</div>", unsafe_allow_html=True)
+    st.markdown("<div class='subtitle'>Smart Training • Safe Recovery • Peak Performance</div>", unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
+# ================= INPUT SECTION =================
+st.markdown("<div class='card'>", unsafe_allow_html=True)
+c1, c2 = st.columns(2)
 
-    # -------- ATHLETE PROFILE --------
-    with col1:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("<div class='section-title'>🏅 Athlete Profile</div>", unsafe_allow_html=True)
+with c1:
+    sport = st.selectbox("Sport", ["Football", "Cricket", "Basketball", "Athletics", "Badminton", "Hockey"])
+    position = st.text_input("Playing Position", placeholder="e.g. Striker, Bowler")
+    age = st.slider("Age", 10, 20, 15)
 
-        sport = st.selectbox(
-            "Sport",
-            ["Football", "Cricket", "Basketball", "Athletics", "Badminton", "Hockey"]
-        )
-        position = st.text_input("Playing Position")
-        age = st.slider("Age", 10, 20, 15)
+with c2:
+    goal = st.selectbox("Primary Goal", ["Build stamina", "Increase strength", "Post-injury recovery", "Improve agility", "Match performance"])
+    diet = st.selectbox("Diet Preference", ["Vegetarian", "Non-Vegetarian", "Vegan"])
+    injury = st.text_input("Injury History", placeholder="e.g. None, slight ankle pain")
+st.markdown("</div>", unsafe_allow_html=True)
 
-        height = st.number_input("Height (cm)", min_value=120, max_value=220, value=160)
-        weight = st.number_input("Weight (kg)", min_value=25, max_value=150, value=50)
+# ================= GENERATION LOGIC =================
+def build_prompt():
+    return f"""
+    You are the ATHLETIQ AI Mascot, a high-energy, elite Kangaroo Sports Coach.
+    Voice: Energetic, uses athletic slang (e.g., 'Ace it', 'Full throttle', 'Hopping mad gains').
+    
+    Context: {age}yo {sport} player ({position}). Goal: {goal}. Diet: {diet}. Injury: {injury if injury else 'None'}.
+    
+    STRICT OUTPUT FORMAT:
+    1. Start with a 1-sentence high-energy greeting.
+    2. Provide a 'Game Plan' Table (Exercise | Sets/Reps | Coach's Tip).
+    3. 3 Bullet points for 'Pro-Level Fueling' and 'Injury Shield'.
+    4. Keep it under 350 words total. No long paragraphs!
+    """
 
-        height_m = height / 100
-        bmi = round(weight / (height_m ** 2), 1)
-
-        if bmi < 18.5:
-            bmi_status = "Underweight"
-        elif 18.5 <= bmi < 24.9:
-            bmi_status = "Normal"
-        elif 25 <= bmi < 29.9:
-            bmi_status = "Overweight"
-        else:
-            bmi_status = "Obese"
-
-        st.markdown(
-            f"""
-            **BMI:** {bmi}  
-            **Category:** {bmi_status}  
-            🛈 *BMI is a general health indicator. For youth athletes, performance and growth patterns matter more than numbers.*
-            """
-        )
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # -------- TRAINING PREFERENCES --------
-    with col2:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("<div class='section-title'>🎯 Training Preferences</div>", unsafe_allow_html=True)
-
-        goal = st.selectbox(
-            "Primary Goal",
-            [
-                "Build stamina",
-                "Increase strength",
-                "Post-injury recovery",
-                "Improve agility",
-                "Match performance",
-                "Overall fitness"
-            ]
-        )
-
-        injury = st.text_area(
-            "Injury / Risk Factors",
-            placeholder="e.g., knee strain, ankle sprain"
-        )
-
-        diet = st.selectbox(
-            "Diet Preference",
-            ["Vegetarian", "Non-Vegetarian", "Vegan"]
-        )
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # -------- PROMPT --------
-    def build_prompt():
-        return f"""
-You are ATHLETIQ AI, an expert youth sports coach.
-
-Athlete Details:
-Sport: {sport}
-Position: {position}
-Age: {age}
-BMI: {bmi} ({bmi_status})
-Goal: {goal}
-Injury history: {injury}
-Diet preference: {diet}
-
-Provide:
-1. Warm-up
-2. Main workout
-3. Injury precautions
-4. Skill/tactical advice
-5. Nutrition tips
-6. Cool-down routine
-
-Keep advice safe, motivating, and youth-appropriate.
-"""
-
-    if st.button("Generate Elite Training Plan"):
-        with st.spinner("ATHLETIQ AI is designing your plan (Scroll up to see the recommendations!)... "):
+if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
+    with st.spinner("Coach is drawing up the play..."):
+        try:
             response = model.generate_content(build_prompt())
+            
+            # Displaying the Mascot's Speech
+            st.markdown(f"""
+            <div class='coach-bubble'>
+                <h3 style='color: #4ade80; margin-top:0;'>🦘 COACH SAYS:</h3>
+                {response.text}
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.balloons()
+            
+            st.download_button(
+                label="📥 Save Training Plan",
+                data=response.text,
+                file_name=f"Athletiq_{sport}_Plan.txt",
+                mime="text/plain"
+            )
+        except Exception as e:
+            st.error(f"Ouch! The coach took a tumble. Try again! Error: {e}")
 
-        formatted_response = f"""
-        <div class='card'>
-        <div class='section-title'>📋 Personalized Coaching Blueprint</div><br>
-        {response.text}
-        </div>
-        """
-
-        # ================= SAVE TO CHAT HISTORY (ADDED) =================
-        st.session_state.athletiq_chats.insert(0, {
-            "title": f"{sport} • {goal}",
-            "content": formatted_response
-        })
-        st.session_state.athletiq_chats = st.session_state.athletiq_chats[:5]
-
-        st.rerun()
-
-# ================= RIGHT COLUMN =================
-with right_col:
-    st.markdown("<div class='mascot-box'>", unsafe_allow_html=True)
-    st.markdown("### Your Fitness Coach")
-
-    st.image(
-        "Athletiq_AI mascot/Kangaroo_mascot.png",
-        caption="ATHLETIQ AI Coach",
-        width='stretch'
-    )
-
-    st.markdown("💬 *Train smart. Recover strong.*")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
+st.markdown("---")
+st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
