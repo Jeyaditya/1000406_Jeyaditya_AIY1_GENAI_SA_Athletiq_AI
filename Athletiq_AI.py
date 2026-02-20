@@ -238,8 +238,9 @@ with right_col:
     st.image(
         "Athletiq_AI mascot/Kangaroo_mascot.png",
         caption="ATHLETIQ AI Coach",
-        use_container_width=True
+        width='strech'
     )
 
     st.markdown("💬 *Train smart. Recover strong.*")
     st.markdown("</div>", unsafe_allow_html=True)
+
