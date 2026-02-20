@@ -1,31 +1,41 @@
 import streamlit as st
 import google.generativeai as genai
 from PIL import Image
+import os
 
 # ================= PAGE CONFIG =================
+# Try-except for the favicon
+icon_path = "Athletiq_AI mascot/Fitness_logo.png"
 try:
-    icon = Image.open("Athletiq_AI mascot/Fitness_logo.png")
+    icon = Image.open(icon_path)
     st.set_page_config(page_title="ATHLETIQ AI", page_icon=icon, layout="wide")
 except:
     st.set_page_config(page_title="ATHLETIQ AI", layout="wide")
 
-# ================= CUSTOM CSS =================
+# ================= CUSTOM CSS (FIXED PADDING) =================
 st.markdown("""
 <style>
     .stApp { background-color: #0e1117; }
-    .block-container { padding-top: 1.5rem; }
     
+    /* Increased top padding so heading isn't cut off */
+    .block-container { 
+        padding-top: 4rem !important; 
+        padding-bottom: 2rem;
+    }
+
     .app-title { 
-        font-size: 3.5rem; 
+        font-size: 3.8rem; 
         font-weight: 800; 
         color: #4ade80; 
         margin: 0;
-        line-height: 1.1;
+        line-height: 1.2; /* Increased to prevent clipping */
+        letter-spacing: -1px;
     }
     .subtitle { 
-        font-size: 1.2rem; 
+        font-size: 1.3rem; 
         color: #cbd5e1; 
         margin-top: 0px;
+        font-weight: 400;
     }
     .card {
         background: rgba(255,255,255,0.05);
@@ -47,125 +57,89 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ================= API CONFIG =================
-# Ensure GEMINI_API_KEY is correctly set in your Streamlit Secrets
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
 
 @st.cache_resource
 def load_model():
-    # Switching to 1.5-flash to help with Quota limits on Free Tier
     return genai.GenerativeModel(
         model_name="gemini-1.5-flash",
-        generation_config={
-            "max_output_tokens": 600,
-            "temperature": 0.7,
-        }
+        generation_config={"max_output_tokens": 600, "temperature": 0.7}
     )
 
 model = load_model()
 
-# ================= SIDEBAR (BMI & MASCOT) =================
+# ================= SIDEBAR (MASCOT & BMI) =================
 with st.sidebar:
-    try:
-        # 2026 Syntax: width="stretch" replaces use_container_width=True
-        st.image("Athletiq_AI mascot/Kangaroo_mascot.png", width="stretch")
-    except:
+    # Diagnostic check: If the image isn't showing, let's see why
+    mascot_path = "Athletiq_AI mascot/Kangaroo_mascot.png"
+    if os.path.exists(mascot_path):
+        st.image(mascot_path, width="stretch")
+    else:
+        st.error(f"Image not found at: {mascot_path}")
         st.title("🦘")
     
     st.markdown("### 🦘 Coach's Corner")
-    st.info("“Let’s hop to it, Champ! Time to build that elite performance!”")
+    st.info("“Let’s hop to it, Champ!”")
     
     st.divider()
     st.markdown("#### 📊 Athlete Vitals")
     sb_height = st.number_input("Height (cm)", 120, 220, 160)
     sb_weight = st.number_input("Weight (kg)", 25, 150, 50)
     
-    # Simple BMI Logic
     bmi_calc = round(sb_weight / ((sb_height/100) ** 2), 1)
     
-    if bmi_calc < 18.5: 
-        status, col = "Underweight", "normal"
-    elif 18.5 <= bmi_calc < 24.9: 
-        status, col = "Healthy Range", "normal"
-    else: 
-        status, col = "Review Build", "inverse"
+    if bmi_calc < 18.5: status, col = "Underweight", "normal"
+    elif 18.5 <= bmi_calc < 24.9: status, col = "Healthy Range", "normal"
+    else: status, col = "Review Build", "inverse"
     
     st.metric(label="Current BMI", value=bmi_calc, delta=status, delta_color=col)
-    st.caption("Youth BMI varies by growth spurt—keep training hard!")
+    
+    
 
-# ================= MAIN HEADER =================
-# Fixed the "Ghost Box" by ensuring no empty markdown is rendered
-header_col1, header_col2 = st.columns([1, 5])
+# ================= MAIN HEADER (ALIGNMENT FIX) =================
+header_col1, header_col2 = st.columns([1, 4])
 
 with header_col1:
-    try:
-        st.image("Athletiq_AI mascot/Fitness_logo.png", width=120)
-    except:
-        st.header("🏋️")
+    if os.path.exists(icon_path):
+        st.image(icon_path, width=150)
+    else:
+        st.markdown("<h1 style='font-size: 80px;'>🏋️</h1>", unsafe_allow_html=True)
 
 with header_col2:
-    st.markdown(f"<div class='app-title'>ATHLETIQ AI</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='subtitle'>Smart Training • Safe Recovery • Peak Performance</div>", unsafe_allow_html=True)
+    st.markdown("<div class='app-title'>ATHLETIQ AI</div>", unsafe_allow_html=True)
+    st.markdown("<div class='subtitle'>Smart Training • Safe Recovery • Peak Performance</div>", unsafe_allow_html=True)
 
 st.divider()
 
-# ================= INPUT SECTION =================
+# ================= INPUTS & GENERATION =================
 st.markdown("<div class='card'>", unsafe_allow_html=True)
 c1, c2 = st.columns(2)
-
 with c1:
     sport = st.selectbox("Sport", ["Football", "Cricket", "Basketball", "Athletics", "Badminton", "Hockey"])
-    position = st.text_input("Playing Position", placeholder="e.g. Striker, Bowler")
+    position = st.text_input("Playing Position", placeholder="e.g. Striker")
     age = st.slider("Age", 10, 20, 15)
-
 with c2:
-    goal = st.selectbox("Primary Goal", ["Build stamina", "Increase strength", "Post-injury recovery", "Improve agility", "Match performance"])
+    goal = st.selectbox("Primary Goal", ["Build stamina", "Increase strength", "Improve agility"])
     diet = st.selectbox("Diet Preference", ["Vegetarian", "Non-Vegetarian", "Vegan"])
-    injury = st.text_input("Injury History", placeholder="e.g. None, slight ankle pain")
+    injury = st.text_input("Injury History", placeholder="e.g. None")
 st.markdown("</div>", unsafe_allow_html=True)
 
-# ================= GENERATION LOGIC =================
-def build_prompt():
-    return f"""
-    You are the ATHLETIQ AI Mascot, a high-energy, elite Kangaroo Sports Coach.
-    Voice: Energetic, athletic slang, use phrases like 'Ace it', 'Full throttle', 'Hopping mad gains'.
-    
-    Context: {age}yo {sport} player ({position}). Goal: {goal}. Diet: {diet}. Injury: {injury if injury else 'None'}.
-    
-    STRICT OUTPUT FORMAT:
-    1. 1-sentence catchy greeting as the Mascot.
-    2. 'Game Plan' Table (Exercise | Sets/Reps | Coach's Tip).
-    3. 3 Bullet points for 'Fueling' and 'Safety'.
-    4. NO long paragraphs. Keep it under 300 words.
-    """
-
 if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
-    if not GEMINI_API_KEY:
-        st.error("Please add your API Key to Streamlit Secrets!")
-    else:
-        with st.spinner("Coach is drawing up the play..."):
-            try:
-                response = model.generate_content(build_prompt())
-                
-                # The Mascot Speech Bubble
-                st.markdown(f"""
-                <div class='coach-bubble'>
-                    <h3 style='color: #4ade80; margin-top:0;'>🦘 COACH SAYS:</h3>
-                    {response.text}
-                </div>
-                """, unsafe_allow_html=True)
-                
-                st.balloons()
-                
-                st.download_button(
-                    label="📥 Save Training Plan",
-                    data=response.text,
-                    file_name=f"Athletiq_{sport}_Plan.txt",
-                    mime="text/plain"
-                )
-            except Exception as e:
-                st.error("The API quota is full or the key is expired. Please try again in a few minutes!")
-                st.info("Tip: Free tier has a limit of 15 requests per minute.")
+    with st.spinner("Coach is drawing up the play..."):
+        try:
+            prompt = f"Role: High-energy Kangaroo Coach. Athlete: {age}yo {sport} {position}. Goal: {goal}. Brief Workout Table + 3 tips."
+            response = model.generate_content(prompt)
+            
+            st.markdown(f"""
+            <div class='coach-bubble'>
+                <h3 style='color: #4ade80; margin-top:0;'>🦘 COACH SAYS:</h3>
+                {response.text}
+            </div>
+            """, unsafe_allow_html=True)
+            st.balloons()
+        except Exception as e:
+            st.error("Quota full! Try again in 60 seconds.")
 
 st.markdown("---")
-st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
+st.caption("ATHLETIQ AI 2026")
