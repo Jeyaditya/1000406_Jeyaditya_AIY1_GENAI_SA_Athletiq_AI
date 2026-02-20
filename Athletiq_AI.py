@@ -68,9 +68,23 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 @st.cache_resource
 def load_model():
-    return genai.GenerativeModel("gemini-2.5-flash")
+    return genai.GenerativeModel("gemini-2.0-flash") 
 
 model = load_model()
+
+# ================= RIGHT COLUMN =================
+with right_col:
+    st.markdown("<div class='mascot-box'>", unsafe_allow_html=True)
+    st.markdown("### Your Fitness Coach")
+
+    st.image(
+        "Athletiq_AI mascot/Kangaroo_mascot.png",
+        caption="ATHLETIQ AI Coach",
+        width="stretch"  # FIXED: use 'stretch' for full container width
+    )
+
+    st.markdown("💬 *Train smart. Recover strong.*")
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ================= MAIN LAYOUT =================
 left_col, right_col = st.columns([3, 1])
@@ -194,4 +208,5 @@ with right_col:
 
     st.markdown("💬 *Train smart. Recover strong.*")
     st.markdown("</div>", unsafe_allow_html=True)
+
 
