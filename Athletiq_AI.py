@@ -60,6 +60,7 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 @st.cache_resource
 def load_model():
+    # Use gemini-1.5-flash-8b as it has the highest free quota in 2026
     return genai.GenerativeModel(
         model_name="gemini-1.5-flash-8b",
         generation_config={
@@ -76,13 +77,13 @@ with st.sidebar:
     if os.path.exists(mascot_path):
         st.image(mascot_path, width="stretch")
     else:
-        st.title("🦘 Better be sweating before I come back!!!")
+        st.title("Better be sweating before I come back!!!")
     
     st.markdown("### Coach's Corner")
     st.info("“Let’s hop to it, Champ! Ready for some hopping mad gains?”")
     
     st.divider()
-    st.markdown("####  Athlete Vitals")
+    st.markdown("#### Athlete Vitals")
     sb_height = st.number_input("Height (cm)", 120, 220, 160)
     sb_weight = st.number_input("Weight (kg)", 25, 150, 50)
     
@@ -93,8 +94,6 @@ with st.sidebar:
     else: status, col = "Monitor Build", "inverse"
     
     st.metric(label="Current BMI", value=bmi, delta=status, delta_color=col)
-    
-    
 
 # ================= SINGLE HEADER SECTION =================
 header_col1, header_col2 = st.columns([1, 5])
@@ -104,7 +103,7 @@ with header_col1:
     if os.path.exists(logo_path):
         st.image(logo_path, width=140)
     else:
-        st.header("🏋️ Don't slack just cause I am not here!!")
+        st.header("Don't slack just cause I am not here!!")
 
 with header_col2:
     st.markdown("<div class='app-title'>ATHLETIQ AI</div>", unsafe_allow_html=True)
@@ -112,22 +111,20 @@ with header_col2:
 
 st.divider()
 
-# ================= MAIN INPUT LAYOUT  =================
+# ================= MAIN INPUT LAYOUT =================
 col1, col2 = st.columns(2)
 
-# -------- ATHLETE PROFILE --------
 with col1:
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("<div class='section-title'> Athlete Profile</div>", unsafe_allow_html=True)
+    st.markdown("<div class='section-title'>Athlete Profile</div>", unsafe_allow_html=True)
     sport = st.selectbox("Sport", ["Football", "Cricket", "Basketball", "Athletics", "Badminton", "Hockey"])
     position = st.text_input("Playing Position", placeholder="e.g. Striker, Fast Bowler")
     age = st.slider("Age", 10, 20, 15)
     st.markdown("</div>", unsafe_allow_html=True)
 
-# -------- TRAINING PREFERENCES --------
 with col2:
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("<div class='section-title'> Training Goals</div>", unsafe_allow_html=True)
+    st.markdown("<div class='section-title'>Training Goals</div>", unsafe_allow_html=True)
     goal = st.selectbox("Primary Goal", ["Build stamina", "Increase strength", "Post-injury recovery", "Improve agility", "Match performance", "Overall fitness"])
     diet = st.selectbox("Diet Preference", ["Vegetarian", "Non-Vegetarian", "Vegan"])
     injury = st.text_area("Injury / Risk Factors", placeholder="e.g., knee strain, ankle sprain", height=68)
@@ -149,44 +146,13 @@ def build_prompt():
     """
 
 if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
-    if not GEMINI_API_KEY:
-        st.error("API Key is missing from Secrets!")
-    else:
-        with st.spinner("Coach is drawing up the play..."):
-            try:
-                # We use a super-short, 'Safe' test prompt first to see if it works
-                test_prompt = "Give me a 1-sentence greeting for a young athlete."
-                # We also explicitly use 'gemini-1.5-flash' (standard) to test
-                model_test = genai.GenerativeModel("gemini-1.5-flash")
-                
-                response = model_test.generate_content(test_prompt)
-                
-                # If that works, we run your real prompt
-                real_response = model.generate_content(build_prompt())
-                
-                st.markdown(f"""
-                <div class='coach-bubble'>
-                    <h3 style='color: #4ade80; margin-top:0;'>🦘 COACH SAYS:</h3>
-                    {real_response.text}
-                </div>
-                """, unsafe_allow_html=True)
-                st.balloons()
-                
-            except Exception as e:
-                # THIS WILL SHOW US THE REAL ERROR MESSAGE
-                st.error("⚠️ SYSTEM BLOCK DETECTED")
-                st.warning(f"Technical Details: {str(e)}")
-                st.info("If it says '429', Google is throttling your IP. If it says '403', your API key is not active yet.")
-'''
-if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
     with st.spinner("Coach is drawing up the play..."):
         try:
             response = model.generate_content(build_prompt())
             
-            # Displaying the Mascot's Speech
             st.markdown(f"""
             <div class='coach-bubble'>
-                <h3 style='color: #4ade80; margin-top:0;'>🦘 COACH SAYS:</h3>
+                <h3 style='color: #4ade80; margin-top:0;'>COACH SAYS:</h3>
                 {response.text}
             </div>
             """, unsafe_allow_html=True)
@@ -200,8 +166,9 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
                 mime="text/plain"
             )
         except Exception as e:
-            st.error("The locker room is full! (Quota Exceeded). Wait 60 seconds and try again.")
-'''
+            # Added a more descriptive error for debugging in case 404 persists
+            st.error(f"Coach is out of breath! Error: {str(e)}")
+            st.info("Try refreshing the page or checking if your API key is correctly set in secrets.")
+
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
-
