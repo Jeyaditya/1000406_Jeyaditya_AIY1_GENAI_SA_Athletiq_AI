@@ -149,6 +149,36 @@ def build_prompt():
     """
 
 if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
+    if not GEMINI_API_KEY:
+        st.error("API Key is missing from Secrets!")
+    else:
+        with st.spinner("Coach is drawing up the play..."):
+            try:
+                # We use a super-short, 'Safe' test prompt first to see if it works
+                test_prompt = "Give me a 1-sentence greeting for a young athlete."
+                # We also explicitly use 'gemini-1.5-flash' (standard) to test
+                model_test = genai.GenerativeModel("gemini-1.5-flash")
+                
+                response = model_test.generate_content(test_prompt)
+                
+                # If that works, we run your real prompt
+                real_response = model.generate_content(build_prompt())
+                
+                st.markdown(f"""
+                <div class='coach-bubble'>
+                    <h3 style='color: #4ade80; margin-top:0;'>🦘 COACH SAYS:</h3>
+                    {real_response.text}
+                </div>
+                """, unsafe_allow_html=True)
+                st.balloons()
+                
+            except Exception as e:
+                # THIS WILL SHOW US THE REAL ERROR MESSAGE
+                st.error("⚠️ SYSTEM BLOCK DETECTED")
+                st.warning(f"Technical Details: {str(e)}")
+                st.info("If it says '429', Google is throttling your IP. If it says '403', your API key is not active yet.")
+'''
+if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
     with st.spinner("Coach is drawing up the play..."):
         try:
             response = model.generate_content(build_prompt())
@@ -171,6 +201,7 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
             )
         except Exception as e:
             st.error("The locker room is full! (Quota Exceeded). Wait 60 seconds and try again.")
-
+'''
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
+
