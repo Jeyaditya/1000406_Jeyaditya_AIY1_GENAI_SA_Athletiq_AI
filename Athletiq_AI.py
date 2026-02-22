@@ -15,7 +15,8 @@ st.markdown("""
 <style>
     .stApp { background-color: #0e1117; }
     
-    .block-container { padding-top: 5rem !important; }
+    /* Increased top padding to ensure the header is never cut off */
+    .block-container { padding-top: 5.5rem !important; }
 
     .app-title { 
         font-size: 3.5rem; 
@@ -61,7 +62,7 @@ genai.configure(api_key=GEMINI_API_KEY)
 @st.cache_resource
 def load_model():
     return genai.GenerativeModel(
-        model_name="gemini-2.5-flash",
+        model_name="gemini-1.5-flash", # Using the most stable 2026 free-tier model name
         generation_config={
             "max_output_tokens": 1000,
             "temperature": 0.6,
@@ -69,6 +70,10 @@ def load_model():
     )
 
 model = load_model()
+
+# ================= SESSION STATE (Prevents cut-offs and handles sidebar download) =================
+if "training_plan" not in st.session_state:
+    st.session_state.training_plan = ""
 
 # ================= SIDEBAR =================
 with st.sidebar:
@@ -93,6 +98,17 @@ with st.sidebar:
     else: status, col = "Monitor Build", "inverse"
     
     st.metric(label="Current BMI", value=bmi, delta=status, delta_color=col)
+
+    # Sidebar Download Button (Only shows after generation)
+    if st.session_state.training_plan:
+        st.divider()
+        st.download_button(
+            label="📥 Save Training Plan",
+            data=st.session_state.training_plan,
+            file_name=f"Athletiq_Training_Plan.txt",
+            mime="text/plain",
+            use_container_width=True
+        )
 
 # ================= SINGLE HEADER SECTION =================
 header_col1, header_col2 = st.columns([1, 5])
@@ -138,39 +154,28 @@ def build_prompt():
 
     STRICT RULES:
     1. Limit the greeting to 5 WORDS MAX.
-    2. Provide separate short paragraphs Exercise, Reps, Coach Tip.
+    2. Provide separate short paragraphs for Exercise, Reps, and Coach Tip.
     3. Use 3 short bullet points for fueling/safety.
     4. NO long paragraphs. Finish the response entirely and clearly.
     """
+
 if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
     with st.spinner("Coach is breaking down a game plan! ..."):
         try:
             response = model.generate_content(build_prompt())
-            
-            st.markdown(f"""
-            <div class='coach-bubble'>
-                <h3 style='color: #4ade80; margin-top:0;'>COACH SAYS:</h3>
-                {response.text}
-            </div>
-            """, unsafe_allow_html=True)
-            
+            st.session_state.training_plan = response.text
             st.balloons()
-            
-            st.download_button(
-                label="📥 Save Training Plan",
-                data=response.text,
-                file_name=f"Athletiq_{sport}_Plan.txt",
-                mime="text/plain"
-            )
         except Exception as e:
-            # Added a more descriptive error for debugging in case 404 persists
             st.error(f"Coach is out of breath! Error: {str(e)}")
-            st.info("Try refreshing the page or checking if your API key is correctly set in secrets.")
+
+# Display the result (locked in via session state)
+if st.session_state.training_plan:
+    st.markdown(f"""
+    <div class='coach-bubble'>
+        <h3 style='color: #4ade80; margin-top:0;'>COACH SAYS:</h3>
+        {st.session_state.training_plan}
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
-
-
-
-
-
