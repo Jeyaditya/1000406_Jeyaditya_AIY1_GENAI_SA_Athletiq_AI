@@ -56,19 +56,21 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ================= API CONFIG =================
+# ================= API CONFIG  =================
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
 
 @st.cache_resource
 def load_model():
     return genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        generation_config={"max_output_tokens": 600, "temperature": 0.7}
+        model_name="gemini-1.5-flash-8b",
+        generation_config={
+            "max_output_tokens": 400,
+            "temperature": 0.7,
+        }
     )
 
 model = load_model()
-
 # ================= SIDEBAR =================
 with st.sidebar:
     mascot_path = "Athletiq_AI mascot/Kangaroo_mascot.png"
@@ -142,4 +144,5 @@ if st.button("GENERATE ELITE TRAINING PLAN"):
 
 st.markdown("---")
 st.caption("ATHLETIQ AI")
+
 
