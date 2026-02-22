@@ -60,11 +60,10 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 @st.cache_resource
 def load_model():
-    # Use gemini-1.5-flash-8b as it has the highest free quota in 2026
     return genai.GenerativeModel(
         model_name="gemini-2.5-flash",
         generation_config={
-            "max_output_tokens": 1024,
+            "max_output_tokens": 4000,
             "temperature": 0.6,
         }
     )
@@ -144,7 +143,7 @@ def build_prompt():
     4. NO long paragraphs. Finish the response entirely.
     """
 if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
-    with st.spinner("Coach is drawing up the play..."):
+    with st.spinner("Coach is breaking down a game plan! ..."):
         try:
             response = model.generate_content(build_prompt())
             
@@ -170,6 +169,7 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
 
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
+
 
 
 
