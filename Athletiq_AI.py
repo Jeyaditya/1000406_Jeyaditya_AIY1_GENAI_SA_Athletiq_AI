@@ -63,7 +63,7 @@ def load_model():
     return genai.GenerativeModel(
         model_name="gemini-2.5-flash",
         generation_config={
-            "max_output_tokens": 4000,
+            "max_output_tokens": 1000,
             "temperature": 0.6,
         }
     )
@@ -138,9 +138,9 @@ def build_prompt():
 
     STRICT RULES:
     1. Limit the greeting to 5 WORDS MAX.
-    2. Provide ONE Markdown Table (Exercise | Reps | Coach Tip).
+    2. Provide separate short paragraphs Exercise, Reps, Coach Tip.
     3. Use 3 short bullet points for fueling/safety.
-    4. NO long paragraphs. Finish the response entirely.
+    4. NO long paragraphs. Finish the response entirely and clearly.
     """
 if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
     with st.spinner("Coach is breaking down a game plan! ..."):
@@ -169,6 +169,7 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
 
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
+
 
 
 
