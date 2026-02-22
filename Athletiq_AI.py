@@ -64,8 +64,8 @@ def load_model():
     return genai.GenerativeModel(
         model_name="gemini-2.5-flash",
         generation_config={
-            "max_output_tokens": 800,
-            "temperature": 0.7,
+            "max_output_tokens": 1000,
+            "temperature": 0.6,
         }
     )
 
@@ -172,4 +172,5 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
 
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
+
 
