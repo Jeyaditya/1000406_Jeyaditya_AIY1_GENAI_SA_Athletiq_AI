@@ -12,7 +12,7 @@ try:
 except:
     st.set_page_config(page_title="ATHLETIQ AI", layout="wide")
 
-# ================= CUSTOM CSS (FIXED PADDING) =================
+# ================= CUSTOM CSS =================
 st.markdown("""
 <style>
     .stApp { background-color: #0e1117; }
@@ -69,9 +69,8 @@ def load_model():
 
 model = load_model()
 
-# ================= SIDEBAR (MASCOT & BMI) =================
+# ================= SIDEBAR =================
 with st.sidebar:
-    # Diagnostic check: If the image isn't showing, let's see why
     mascot_path = "Athletiq_AI mascot/Kangaroo_mascot.png"
     if os.path.exists(mascot_path):
         st.image(mascot_path, width="stretch")
@@ -97,7 +96,7 @@ with st.sidebar:
     
     
 
-# ================= MAIN HEADER (ALIGNMENT FIX) =================
+# ================= MAIN HEADER =================
 header_col1, header_col2 = st.columns([1, 4])
 
 with header_col1:
@@ -125,7 +124,7 @@ with c2:
     injury = st.text_input("Injury History", placeholder="e.g. None")
 st.markdown("</div>", unsafe_allow_html=True)
 
-if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
+if st.button("GENERATE ELITE TRAINING PLAN"):
     with st.spinner("Coach is drawing up the play..."):
         try:
             prompt = f"Role: High-energy Kangaroo Coach. Athlete: {age}yo {sport} {position}. Goal: {goal}. Brief Workout Table + 3 tips."
@@ -133,7 +132,7 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
             
             st.markdown(f"""
             <div class='coach-bubble'>
-                <h3 style='color: #4ade80; margin-top:0;'>🦘 COACH SAYS:</h3>
+                <h3 style='color: #4ade80; margin-top:0;'> COACH SAYS:</h3>
                 {response.text}
             </div>
             """, unsafe_allow_html=True)
@@ -142,4 +141,5 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
             st.error("Quota full! Try again in 60 seconds.")
 
 st.markdown("---")
-st.caption("ATHLETIQ AI 2026")
+st.caption("ATHLETIQ AI")
+
