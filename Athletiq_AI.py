@@ -62,7 +62,7 @@ genai.configure(api_key=GEMINI_API_KEY)
 @st.cache_resource
 def load_model():
     return genai.GenerativeModel(
-        model_name="gemini-1.5-flash", # Using the most stable 2026 free-tier model name
+        model_name="gemini-2.5-flash",
         generation_config={
             "max_output_tokens": 1000,
             "temperature": 0.6,
@@ -71,7 +71,7 @@ def load_model():
 
 model = load_model()
 
-# ================= SESSION STATE (Prevents cut-offs and handles sidebar download) =================
+# ================= SESSION STATE =================
 if "training_plan" not in st.session_state:
     st.session_state.training_plan = ""
 
@@ -99,7 +99,6 @@ with st.sidebar:
     
     st.metric(label="Current BMI", value=bmi, delta=status, delta_color=col)
 
-    # Sidebar Download Button (Only shows after generation)
     if st.session_state.training_plan:
         st.divider()
         st.download_button(
@@ -168,7 +167,6 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
         except Exception as e:
             st.error(f"Coach is out of breath! Error: {str(e)}")
 
-# Display the result (locked in via session state)
 if st.session_state.training_plan:
     st.markdown(f"""
     <div class='coach-bubble'>
@@ -179,3 +177,4 @@ if st.session_state.training_plan:
 
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
+
