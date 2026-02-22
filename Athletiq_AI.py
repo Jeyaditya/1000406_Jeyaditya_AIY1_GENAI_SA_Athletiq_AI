@@ -64,7 +64,7 @@ def load_model():
     return genai.GenerativeModel(
         model_name="gemini-2.5-flash",
         generation_config={
-            "max_output_tokens": 1000,
+            "max_output_tokens": 1024,
             "temperature": 0.6,
         }
     )
@@ -133,18 +133,16 @@ with col2:
 # ================= GENERATION LOGIC =================
 def build_prompt():
     return f"""
-    You are the ATHLETIQ AI Mascot, a high-energy, elite Kangaroo Sports Coach.
-    Voice: Energetic, athletic slang (e.g., 'Ace it', 'Full throttle', 'Hopping mad gains').
-    
-    Context: {age}yo {sport} player ({position}). Goal: {goal}. Diet: {diet}. Injury: {injury if injury else 'None'}.
-    
-    STRICT OUTPUT FORMAT:
-    1. 1-sentence catchy greeting as the Mascot.
-    2. 'Game Plan' Table (Exercise | Sets/Reps | Coach's Tip).
-    3. Bullet points for 'Pro-Level Fueling' and 'Injury Shield'.
-    4. Keep it under 350 words total.
-    """
+    You are the ATHLETIQ AI Mascot who is very energetic and loves dad jokes (Kangaroo Coach). 
+    TASK: Create a TIGHT training plan for a {age}yo {sport} player ({position}).
+    Goal: {goal}. Diet: {diet}. Injury: {injury if injury else 'None'}.
 
+    STRICT RULES:
+    1. Limit the greeting to 5 WORDS MAX.
+    2. Provide ONE Markdown Table (Exercise | Reps | Coach Tip).
+    3. Use 3 short bullet points for fueling/safety.
+    4. NO long paragraphs. Finish the response entirely.
+    """
 if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
     with st.spinner("Coach is drawing up the play..."):
         try:
@@ -172,5 +170,6 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
 
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
+
 
 
