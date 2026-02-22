@@ -62,7 +62,7 @@ genai.configure(api_key=GEMINI_API_KEY)
 def load_model():
     # Use gemini-1.5-flash-8b as it has the highest free quota in 2026
     return genai.GenerativeModel(
-        model_name="gemini-1.5-flash-8b",
+        model_name="gemini-2.5-flash",
         generation_config={
             "max_output_tokens": 800,
             "temperature": 0.7,
@@ -172,3 +172,4 @@ if st.button("🚀 GENERATE ELITE TRAINING PLAN"):
 
 st.markdown("---")
 st.caption("ATHLETIQ AI 2026 | Train Smart. Recover Strong.")
+
